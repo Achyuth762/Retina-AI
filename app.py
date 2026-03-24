@@ -195,15 +195,29 @@ def calculate_lesion_stats(mask):
 app = Flask(__name__)
 CORS(app)
 
-# Load models at startup
-print(f"Using device: {DEVICE}")
-print(f"Loading classification model from: {CL_WEIGHTS}")
-cl_model = get_classification_model(CL_WEIGHTS, DEVICE)
-print("Classification model loaded ✅")
+cl_model = None
+seg_model = None
 
-print(f"Loading segmentation model from: {SEG_WEIGHTS}")
-seg_model = get_segmentation_model(SEG_WEIGHTS, DEVICE)
-print("Segmentation model loaded ✅")
+def load_models():
+    global cl_model, seg_model
+    if cl_model is None:
+        try:
+            print(f"Using device: {DEVICE}")
+            print(f"Loading classification model from: {CL_WEIGHTS}")
+            cl_model = get_classification_model(CL_WEIGHTS, DEVICE)
+            print("Classification model loaded ✅")
+        except Exception as e:
+            print(f"Error loading classification model: {e}")
+            raise
+    
+    if seg_model is None:
+        try:
+            print(f"Loading segmentation model from: {SEG_WEIGHTS}")
+            seg_model = get_segmentation_model(SEG_WEIGHTS, DEVICE)
+            print("Segmentation model loaded ✅")
+        except Exception as e:
+            print(f"Error loading segmentation model: {e}")
+            raise
 
 
 @app.route('/')
@@ -214,6 +228,7 @@ def index():
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
     """Main analysis endpoint — runs both classification and segmentation"""
+    load_models()
     if 'image' not in request.files:
         return jsonify({'error': 'No image file provided'}), 400
 
@@ -277,7 +292,7 @@ def health():
     return jsonify({
         'status': 'ok',
         'device': str(DEVICE),
-        'models_loaded': True
+        'models_loaded': cl_model is not None and seg_model is not None
     })
 
 
