@@ -68,11 +68,11 @@ Finally, open your browser to `http://localhost:5173`. Make sure all three serve
 
 ## ☁️ Deployment Guidelines
 
-Since Vercel Serverless Functions have strict payload/timeout limits (averaging <50MB & 10s), **you cannot host the PyTorch models on Vercel directly**. You must deploy using this bifurcated strategy:
+Since Vercel Serverless Functions have strict payload/timeout constraints (10s max execution and <50MB size), **you cannot host heavy PyTorch models on Vercel directly**. We utilize a powerful, entirely free 3-tier cloud architecture:
 
-1. **Python AI**: Deploy the root folder as a lightweight Web Service on **Render.com** (utilizing the included `render.yaml` blueprint).
-2. **Node.js Backend**: Deploy the `backend/` folder natively on **Vercel**. Set `MONGODB_URI` and link your Render deployment URL as your `AI_SERVICE_URL`.
-3. **React Frontend**: Deploy the `frontend/` folder directly on **Vercel**. Add the new backend Vercel URL as your `VITE_API_URL`.
+1. **Python AI Engine (Hugging Face Spaces)**: The root directory contains a `Dockerfile` specifically tuned for Hugging Face Spaces. It provisions a 16GB RAM container to elegantly load both `EfficientNet` models into memory. 
+2. **Node.js Backend (Vercel)**: Deployed as Serverless proxy functions. Set the `MONGODB_URI` environment variable, and uniquely link your Hugging Face Space URL as your `AI_SERVICE_URL`.
+3. **React Frontend (Vercel)**: Deployed as a blazing-fast SPA. Add the newly generated Vercel Backend URL as your `VITE_API_URL`.
 
 ---
 
