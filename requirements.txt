@@ -1,0 +1,10 @@
+flask==3.1.0
+flask-cors==5.0.1
+torch
+torchvision
+segmentation-models-pytorch
+timm
+opencv-python
+Pillow
+numpy
+gunicorn
